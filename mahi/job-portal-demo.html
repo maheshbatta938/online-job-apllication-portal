@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Portal Demo</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f7f9fa; color: #222; }
+    .header {
+      background: linear-gradient(90deg, #2a5298 0%, #1e3c72 100%);
+      color: #fff;
+      padding: 1.5rem 2rem 1rem 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px #0002;
+    }
+    h1 { margin: 0; font-size: 2.2rem; letter-spacing: 1px; }
+    h2 { margin-top: 2rem; color: #1e3c72; }
+    input, button, select {
+      margin: 0.2rem;
+      padding: 0.6rem;
+      border-radius: 4px;
+      border: 1px solid #bbb;
+      font-size: 1rem;
+      outline: none;
+      transition: border 0.2s;
+    }
+    input:focus, select:focus {
+      border: 1.5px solid #2a5298;
+    }
+    button {
+      background: linear-gradient(90deg, #2a5298 0%, #1e3c72 100%);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 4px #0001;
+      font-weight: 500;
+    }
+    button:disabled {
+      background: #bbb;
+      cursor: not-allowed;
+      color: #eee;
+    }
+    button:hover:not(:disabled) {
+      background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+      box-shadow: 0 4px 12px #0002;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px #0001;
+      padding: 2rem 2.5rem 2.5rem 2.5rem;
+    }
+    .job-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+    .job {
+      border: 1px solid #d1d5db;
+      background: #fafdff;
+      box-shadow: 0 2px 8px #0001;
+      padding: 1.2rem 1.5rem;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      transition: box-shadow 0.2s, border 0.2s;
+      position: relative;
+    }
+    .job:hover {
+      box-shadow: 0 6px 24px #2a529820;
+      border: 1.5px solid #2a5298;
+    }
+    .job-title {
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: #2a5298;
+      margin-bottom: 0.2rem;
+      cursor: pointer;
+      text-decoration: underline dotted #2a5298 1.5px;
+      transition: color 0.2s;
+    }
+    .job-title:hover {
+      color: #1e3c72;
+    }
+    .job-company {
+      color: #1e3c72;
+      font-weight: 500;
+    }
+    .job-location {
+      color: #555;
+      font-size: 0.98rem;
+    }
+    .job-description {
+      color: #333;
+      margin-bottom: 0.2rem;
+    }
+    .job small {
+      color: #888;
+    }
+    #applyMsg, #addJobMsg {
+      margin-top: 0.5rem;
+      color: #d7263d;
+      font-weight: bold;
+    }
+    #jobs, #applications {
+      margin-bottom: 2rem;
+    }
+    form {
+      margin-bottom: 1rem;
+    }
+    .apply-form {
+      margin-top: 0.5rem;
+      background: #f0f4f8;
+      padding: 0.7rem 1rem;
+      border-radius: 6px;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+      position: relative;
+    }
+    .application {
+      border: 1px solid #d1d5db;
+      background: #fafdff;
+      box-shadow: 0 2px 8px #0001;
+      padding: 1rem 1.2rem;
+      margin: 0.5rem 0;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .toast {
+      position: fixed;
+      top: 30px;
+      right: 30px;
+      background: #2a5298;
+      color: #fff;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px #0003;
+      font-size: 1.1rem;
+      z-index: 9999;
+      opacity: 0.97;
+      animation: fadeInOut 2.5s;
+    }
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateY(-20px); }
+      10% { opacity: 1; transform: translateY(0); }
+      90% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(-20px); }
+    }
+    .modal-bg {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #0007;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal {
+      background: #fff;
+      border-radius: 12px;
+      padding: 2rem 2.5rem;
+      max-width: 400px;
+      box-shadow: 0 8px 32px #0003;
+      position: relative;
+      min-width: 300px;
+      animation: fadeIn 0.2s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .modal-close {
+      position: absolute;
+      top: 10px; right: 18px;
+      font-size: 1.5rem;
+      color: #2a5298;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .footer {
+      text-align: center;
+      color: #888;
+      font-size: 1rem;
+      margin: 2rem 0 1rem 0;
+    }
+    @media (max-width: 600px) {
+      .container { padding: 1rem; }
+      .job { padding: 0.7rem; }
+      .apply-form { flex-direction: column; align-items: stretch; }
+      .modal { padding: 1rem 0.5rem; min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Job Portal Demo UI</h1>
+  </div>
+  <div class="container">
+
+  <h2>Add a Job</h2>
+  <form id="addJobForm" onsubmit="addJob(event)">
+    <input type="text" id="jobTitle" placeholder="Job Title" required>
+    <input type="text" id="jobCompany" placeholder="Company" required>
+    <input type="text" id="jobLocation" placeholder="Location" required>
+    <input type="text" id="jobDescription" placeholder="Description" required style="width:300px">
+    <button type="submit">Add Job</button>
+  </form>
+  <div id="addJobMsg"></div>
+
+  <h2>Search Jobs</h2>
+  <input type="text" id="search" placeholder="Search jobs...">
+  <button onclick="fetchJobs()">Search</button>
+
+  <h2>All Jobs</h2>
+  <div id="jobs" class="job-list"></div>
+
+  <h2>My Applications</h2>
+  <input type="email" id="myEmail" placeholder="Enter your email">
+  <button onclick="fetchApplications()">View My Applications</button>
+  <div id="applications"></div>
+
+  </div>
+  <div id="toast"></div>
+  <div id="modal-root"></div>
+  <div class="footer">&copy; 2024 Job Portal Demo | Powered by MERN</div>
+  <script>
+    const API = 'http://localhost:5000/api';
+    let jobsList = [];
+    let applyJobId = null;
+    let lastApplied = {};
+
+    function showToast(msg, success = true) {
+      const toast = document.getElementById('toast');
+      toast.innerHTML = `<div class='toast' style='background:${success ? '#2a5298' : '#d7263d'}'>${msg}</div>`;
+      setTimeout(() => { toast.innerHTML = ''; }, 2500);
+    }
+
+    function showModal(job) {
+      const modalRoot = document.getElementById('modal-root');
+      modalRoot.innerHTML = `
+        <div class='modal-bg' onclick='closeModal(event)'>
+          <div class='modal' onclick='event.stopPropagation()'>
+            <button class='modal-close' onclick='closeModal(event)'>&times;</button>
+            <h2 style='margin-top:0;'>${job.title}</h2>
+            <div class='job-company'>${job.company}</div>
+            <div class='job-location'>${job.location}</div>
+            <div class='job-description' style='margin:1rem 0;'>${job.description}</div>
+            <div><small>Posted: ${new Date(job.datePosted).toLocaleDateString()}</small></div>
+          </div>
+        </div>
+      `;
+    }
+    function closeModal(e) {
+      document.getElementById('modal-root').innerHTML = '';
+    }
+
+    async function fetchJobs() {
+      const search = document.getElementById('search').value;
+      let url = `${API}/jobs`;
+      if (search) url += `?search=${encodeURIComponent(search)}`;
+      const res = await fetch(url);
+      const jobs = await res.json();
+      jobsList = jobs;
+      renderJobs(jobs);
+    }
+
+    function renderJobs(jobs) {
+      const jobsDiv = document.getElementById('jobs');
+      if (!jobs || jobs.length === 0) {
+        jobsDiv.innerHTML = '<i>No jobs found.</i>';
+        return;
+      }
+      jobsDiv.innerHTML = jobs.map(job => {
+        let applied = lastApplied[job._id];
+        return `
+        <div class="job">
+          <div class="job-title" onclick='showModal(${JSON.stringify(job)})'>${job.title}</div>
+          <div class="job-company">${job.company}</div>
+          <div class="job-location">${job.location}</div>
+          <div class="job-description">${job.description}</div>
+          <div><small>Posted: ${new Date(job.datePosted).toLocaleDateString()}</small></div>
+          <button onclick="showApplyForm('${job._id}')" ${applied ? 'disabled' : ''}>${applied ? 'Applied' : 'Apply'}</button>
+          <div id="apply-form-${job._id}"></div>
+        </div>
+      `}).join('');
+    }
+
+    function showApplyForm(jobId) {
+      // Hide any other open apply forms
+      jobsList.forEach(job => {
+        const formDiv = document.getElementById(`apply-form-${job._id}`);
+        if (formDiv) formDiv.innerHTML = '';
+      });
+      const formDiv = document.getElementById(`apply-form-${jobId}`);
+      formDiv.innerHTML = `
+        <form class='apply-form' onsubmit='applyJob(event, "${jobId}")'>
+          <input type='text' id='applyName' placeholder='Your Name' required>
+          <input type='email' id='applyEmail' placeholder='Your Email' required>
+          <button type='submit'>Submit Application</button>
+        </form>
+        <div id='applyMsg'></div>
+      `;
+    }
+
+    async function applyJob(e, jobId) {
+      e.preventDefault();
+      const name = document.getElementById('applyName').value;
+      const email = document.getElementById('applyEmail').value;
+      const res = await fetch(`${API}/applications`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jobId, name, email })
+      });
+      const data = await res.json();
+      const msgDiv = document.getElementById('applyMsg');
+      if (data.error) {
+        msgDiv.textContent = data.error;
+        showToast(data.error, false);
+      } else {
+        msgDiv.innerHTML = `<span style='color:green;font-weight:bold;'> 5F8; Applied!</span>`;
+        showToast('Applied successfully!');
+        lastApplied[jobId] = true;
+        setTimeout(() => {
+          fetchJobs();
+        }, 1200);
+      }
+    }
+
+    async function addJob(e) {
+      e.preventDefault();
+      const title = document.getElementById('jobTitle').value;
+      const company = document.getElementById('jobCompany').value;
+      const location = document.getElementById('jobLocation').value;
+      const description = document.getElementById('jobDescription').value;
+      const res = await fetch(`${API}/jobs`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, company, location, description })
+      });
+      const data = await res.json();
+      document.getElementById('addJobMsg').textContent = data.error ? data.error : 'Job added!';
+      showToast(data.error ? data.error : 'Job added!', !data.error);
+      if (!data.error) {
+        document.getElementById('addJobForm').reset();
+        fetchJobs();
+      }
+    }
+
+    async function fetchApplications() {
+      const email = document.getElementById('myEmail').value;
+      if (!email) return alert('Enter your email');
+      const res = await fetch(`${API}/applications?email=${encodeURIComponent(email)}`);
+      const apps = await res.json();
+      renderApplications(apps);
+    }
+
+    function renderApplications(apps) {
+      const appsDiv = document.getElementById('applications');
+      appsDiv.innerHTML = apps.map(app => `
+        <div class="application">
+          <div><b>${app.job?.title || 'Job deleted'}</b> at <span class='job-company'>${app.job?.company || ''}</span></div>
+          <div><span class='job-location'>${app.job?.location || ''}</span></div>
+          <div>Applied on: <b>${new Date(app.appliedAt).toLocaleDateString()}</b></div>
+          <button onclick="deleteApplication('${app._id}')">Delete Application</button>
+        </div>
+      `).join('') || '<i>No applications found.</i>';
+    }
+
+    async function deleteApplication(id) {
+      if (!confirm('Delete this application?')) return;
+      await fetch(`${API}/applications/${id}`, { method: 'DELETE' });
+      showToast('Application deleted.');
+      fetchApplications();
+    }
+
+    // Initial load
+    fetchJobs();
+  </script>
+</body>
+</html> 
