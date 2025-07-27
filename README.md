@@ -15,6 +15,5 @@ This is a full-stack web application designed to streamline the job application 
 - Frontend: React.js, HTML, CSS
 - Backend: Node.js, Express.js
 - Database: MongoDB
-- Authentication: JWT (JSON Web Tokens)
 - Other: Mongoose, CORS
 
